@@ -8,20 +8,20 @@
 import express from "express";
 import { getPayloadClient } from "./get-payload";
 import { nextApp, nextHandler } from "./next-utils";
-import * as trpcExpress from "@trpc/server/adapters/express";
-import { appRouter } from "./trpc";
+// import * as trpcExpress from "@trpc/server/adapters/express";
+// import { appRouter } from "./trpc";
 
 const app = express();
 // production is env because the server will give us the port and in development it is 3000
 const PORT = Number(process.env.PORT) || 3000;
 
-const createContext = ({
-  req,
-  res,
-}: trpcExpress.CreateExpressContextOptions) => ({
-  req,
-  res,
-});
+// const createContext = ({
+//   req,
+//   res,
+// }: trpcExpress.CreateExpressContextOptions) => ({
+//   req,
+//   res,
+// });
 
 const start = async () => {
   // admin data
@@ -35,14 +35,14 @@ const start = async () => {
   });
 
   // middelware -> when we get req in server we foward it to trcp in nextjs
-  app.use(
-    "/api/trpc",
-    trpcExpress.createExpressMiddleware({
-      router: appRouter,
-      // it allows us to take something from express like req en rep that we get from rxpress and then attach them to something called the context to be able to use them also in nextjs
-      createContext,
-    })
-  );
+//   app.use(
+//     "/api/trpc",
+//     trpcExpress.createExpressMiddleware({
+//       router: appRouter,
+//       // it allows us to take something from express like req en rep that we get from rxpress and then attach them to something called the context to be able to use them also in nextjs
+//       createContext,
+//     })
+//   );
 
   // to host send it to next-util.ts
   app.use((req, res) => nextHandler(req, res));
@@ -51,9 +51,9 @@ const start = async () => {
     // payload.logger.info("Next.js started");
 
     app.listen(PORT, async () => {
-      // payload.logger.info(
-      //   `Next.js APP URL : ${process.env.NEXT_PUBLIC_SERVER_URL}`
-      // );
+    //   payload.logger.info(
+    //     `Next.js APP URL : ${process.env.NEXT_PUBLIC_SERVER_URL}`
+    //   );
     });
   });
 };
