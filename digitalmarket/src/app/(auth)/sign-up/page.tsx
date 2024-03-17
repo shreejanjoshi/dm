@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 
 import { Icons } from "@/components/Icons";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import {
   AuthCredentialsValidator,
   TAuthCredentialsValidator,
-} from "@/lib/validator/account-credentials-validator";
+} from "@/lib/validators/account-credentials-validator";
 import { trpc } from "@/trpc/client";
 
 const Page = () => {
