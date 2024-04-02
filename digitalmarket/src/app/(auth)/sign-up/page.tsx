@@ -27,7 +27,6 @@ const Page = () => {
 
   // create a user once they enter their credentials and they are valid
   const { data } = trpc.anyApiRoute.useQuery();
-  console.log(data);
 
   const onSubmit = ({ email, password }: TAuthCredentialsValidator) => {
     // send data to the server
