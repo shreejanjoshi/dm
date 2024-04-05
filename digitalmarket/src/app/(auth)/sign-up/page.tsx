@@ -26,10 +26,13 @@ const Page = () => {
   });
 
   // create a user once they enter their credentials and they are valid
-  const { data } = trpc.anyApiRoute.useQuery();
+  // const { data } = trpc.anyApiRoute.useQuery();
+
+  // like a post request that anything that change data
+  const { mutate, isLoading } = trpc.auth.createPayloadUser.useMutation({});
 
   const onSubmit = ({ email, password }: TAuthCredentialsValidator) => {
-    // send data to the server
+    mutate({ email, password });
   };
 
   return (
@@ -74,6 +77,7 @@ const Page = () => {
                   <Label htmlFor="password">Password</Label>
                   <Input
                     {...register("password")}
+                    type="password"
                     className={cn({
                       "focus-visible:ring-red-500": errors.password,
                     })}
