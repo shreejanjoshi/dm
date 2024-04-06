@@ -3,6 +3,9 @@ import { AuthCredentialsValidator } from "../lib/validators/account-credentials-
 import { publicProcedure, router } from "./trpc";
 import { getPayloadClient } from "../get-payload";
 import { TRPCError } from "@trpc/server";
+import { verify } from "crypto";
+import VerifyEmail from "@/components/VerifyEmail";
+import { z } from "zod";
 
 export const authRouter = router({
   //create user in cms and pp is anyone can call this api endpoint and they dont need to be logged in to do so. This is sign in and sign up so public can be no problem but we will also create private
@@ -42,5 +45,24 @@ export const authRouter = router({
       });
 
       return { success: true, sentToEmail: email };
+    }),
+
+  // valitade user email
+  verifyEmail: publicProcedure
+    .input(z.object({ token: z.string() }))
+    // no need to use mutation becase wez are not changing data but we are reading data
+    .query(async ({ input }) => {
+      const { token } = input;
+
+      const payload = await getPayloadClient();
+
+      const isVerified = await payload.verifyEmail({
+        collection: "users",
+        token,
+      });
+
+      if (!isVerified) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      return { success: true };
     }),
 });
