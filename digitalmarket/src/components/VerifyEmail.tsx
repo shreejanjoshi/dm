@@ -11,7 +11,7 @@ interface VerifyEmailProps {
 }
 
 const VerifyEmail = ({ token }: VerifyEmailProps) => {
-  // happen in backend
+  // happen in backend: look in auth-router.ts
   const { data, isLoading, isError } = trpc.auth.verifyEmail.useQuery({
     token,
   });

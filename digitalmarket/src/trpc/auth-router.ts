@@ -54,6 +54,7 @@ export const authRouter = router({
     .query(async ({ input }) => {
       const { token } = input;
 
+      // that we wrote that get us access to our CMS
       const payload = await getPayloadClient();
 
       const isVerified = await payload.verifyEmail({
