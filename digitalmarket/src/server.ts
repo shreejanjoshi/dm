@@ -10,6 +10,7 @@ import { getPayloadClient } from "./get-payload";
 import { nextApp, nextHandler } from "./next-utils";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { appRouter } from "./trpc";
+import { inferAsyncReturnType } from "@trpc/server";
 
 const app = express();
 // production is env because the server will give us the port and in development it is 3000
@@ -22,6 +23,10 @@ const createContext = ({
   req,
   res,
 });
+
+// typescript not recornazing req, res that come from cretecontext to authrouter.ts . so we use this
+// we can use this ExpressContext in trpc initialization for under src -> trpc -> trpc.ts
+export type ExpressContext = inferAsyncReturnType<typeof createContext>;
 
 const start = async () => {
   // admin data
@@ -40,6 +45,7 @@ const start = async () => {
     trpcExpress.createExpressMiddleware({
       router: appRouter,
       // it allows us to take something from express like req en rep that we get from rxpress and then attach them to something called the context to be able to use them also in nextjs
+      // transfer data from express to nextjs and trpc
       createContext,
     })
   );

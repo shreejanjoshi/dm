@@ -3,7 +3,7 @@ import { AuthCredentialsValidator } from "../lib/validators/account-credentials-
 import { publicProcedure, router } from "./trpc";
 import { getPayloadClient } from "../get-payload";
 import { TRPCError } from "@trpc/server";
-import { verify } from "crypto";
+import { sign, verify } from "crypto";
 import VerifyEmail from "@/components/VerifyEmail";
 import { z } from "zod";
 
@@ -65,5 +65,32 @@ export const authRouter = router({
       if (!isVerified) throw new TRPCError({ code: "UNAUTHORIZED" });
 
       return { success: true };
+    }),
+
+  signIn: publicProcedure
+    .input(AuthCredentialsValidator)
+    .mutation(async ({ input, ctx }) => {
+      const { email, password } = input;
+      const { res } = ctx;
+
+      // playload is cms first need to have access to it
+      const payload = await getPayloadClient();
+
+      try {
+        await payload.login({
+          collection: "users",
+          data: {
+            email,
+            password,
+          },
+          // All a login is an exchange from your email and password you send it to server. Email and password req to server and server gives back token. This token is nothing else than the equivalent of your email and password stored as cookie. so we use req that coms from express
+          res,
+        });
+
+        return { success: true };
+      } catch (err) {
+        // IF WRONG EMAIL OR PASSWORD UNAUTH
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
     }),
 });
