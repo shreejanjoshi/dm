@@ -21,6 +21,8 @@ export const authRouter = router({
       // giving docs a custom name
       const { docs: users } = await payload.find({
         collection: "users",
+        // nothing should able to change priceId expect us on the backend but it is in default so
+        // overrideAccess: true,
         where: {
           email: {
             equals: email,
