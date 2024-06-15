@@ -4,9 +4,14 @@ import type { InitOptions } from "payload/config";
 import payload, { Payload } from "payload";
 import nodemailer from "nodemailer";
 
+// ------------------------------------------------------------
+// ------------------------------------------------------------
+
 dotenv.config({
   path: path.resolve(__dirname, "../.env"),
 });
+
+// ------------------------------------------------------------
 
 // send email
 const transporter = nodemailer.createTransport({
@@ -19,6 +24,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// ------------------------------------------------------------
+
 // get our client we want to use of caching to save resources especially in production
 let cached = (global as any).payload;
 
@@ -28,6 +35,8 @@ if (!cached) {
     promise: null,
   };
 }
+
+// ------------------------------------------------------------
 
 interface Args {
   initOptions?: Partial<InitOptions>;
@@ -50,7 +59,7 @@ export const getPayloadClient = async ({
         transport: transporter,
         // domain email
         fromAddress: "onboarding@resend.dev",
-        fromName: "DigitalMarket"
+        fromName: "DigitalMarket",
       },
       secret: process.env.PAYLOAD_SECRET,
       local: initOptions?.express ? false : true,

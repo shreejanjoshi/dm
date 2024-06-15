@@ -1,5 +1,7 @@
 "use client";
 
+// ------------------------------------------------------------
+
 import { Icons } from "@/components/Icons";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +12,6 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-
 import {
   AuthCredentialsValidator,
   TAuthCredentialsValidator,
@@ -18,6 +19,9 @@ import {
 import { trpc } from "@/trpc/client";
 import { ZodError } from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
+
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 
 const Page = () => {
   const serachParams = useSearchParams();
@@ -27,15 +31,21 @@ const Page = () => {
   // when we want to redirect from for ex the card page to the sign in becasue only authenticated user can should be able to access the card but we want to redirect them back to where they were after they sign in successfully
   const origin = serachParams.get("origin");
 
+  // ------------------------------------------------------------
+
   // when ever we want to log in as seller or buyer all we need to do is change the url and everything is handle for us
   const continueAsSeller = () => {
     router.push("?as=seller");
   };
 
+  // ------------------------------------------------------------
+
   const continueAsBuyer = () => {
     // need to get rid of as=seller from url
     router.replace("/sign-in", undefined);
   };
+
+  // ------------------------------------------------------------
 
   const {
     register,
@@ -44,6 +54,8 @@ const Page = () => {
   } = useForm<TAuthCredentialsValidator>({
     resolver: zodResolver(AuthCredentialsValidator),
   });
+
+  // ------------------------------------------------------------
 
   // create a user once they enter their credentials and they are valid
   // const { data } = trpc.anyApiRoute.useQuery();
@@ -76,10 +88,15 @@ const Page = () => {
     },
   });
 
+  // ------------------------------------------------------------
+
   const onSubmit = ({ email, password }: TAuthCredentialsValidator) => {
     // signIn is mutate
     signIn({ email, password });
   };
+
+  // ------------------------------------------------------------
+  // ------------------------------------------------------------
 
   return (
     <>
@@ -187,5 +204,8 @@ const Page = () => {
     </>
   );
 };
+
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 
 export default Page;

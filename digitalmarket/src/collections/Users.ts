@@ -1,8 +1,14 @@
 import { CollectionConfig } from "payload/types";
 
+// ------------------------------------------------------------
+// ------------------------------------------------------------
+
 export const Users: CollectionConfig = {
   // same as collection name in lower case
   slug: "users",
+
+  // ------------------------------------------------------------
+
   auth: {
     verify: {
       generateEmailHTML: ({ token }) => {
@@ -10,12 +16,18 @@ export const Users: CollectionConfig = {
       },
     },
   },
+
+  // ------------------------------------------------------------
+
   // only right people can see right data
   access: {
     // true any one can create or read
     read: () => true,
     create: () => true,
   },
+
+  // ------------------------------------------------------------
+
   fields: [
     {
       name: "role",

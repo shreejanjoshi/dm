@@ -1,15 +1,27 @@
-import { PRODUCT_CATEGORIES } from "@/config";
+import { PRODUCT_CATEGORIES } from "../../config";
 import { CollectionConfig } from "payload/types";
+
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 
 export const Products: CollectionConfig = {
   // table name in lower case
   slug: "products",
+
+  // ------------------------------------------------------------
+
   admin: {
     // name field that we  are going to create for default value
     useAsTitle: "name",
   },
+
+  // ------------------------------------------------------------
+
   // who can access which parts of which products, can anyone download product? no right
   access: {},
+
+  // ------------------------------------------------------------
+
   fields: [
     {
       // each product has user who craete this product
@@ -27,6 +39,9 @@ export const Products: CollectionConfig = {
         condition: () => false,
       },
     },
+
+    // ------------------------------------------------------------
+
     {
       // each product will have a name
       name: "name",
@@ -36,11 +51,17 @@ export const Products: CollectionConfig = {
       //   every product has to have a name
       required: true,
     },
+
+    // ------------------------------------------------------------
+
     {
       name: "description",
       type: "textarea",
       label: "Product details",
     },
+
+    // ------------------------------------------------------------
+
     {
       name: "price",
       label: "Price in USD",
@@ -49,13 +70,20 @@ export const Products: CollectionConfig = {
       type: "number",
       required: true,
     },
+
+    // ------------------------------------------------------------
+
     {
       name: "category",
       label: "Category",
       type: "select",
+      // src / config / indec.ts
       options: PRODUCT_CATEGORIES.map(({ label, value }) => ({ label, value })),
       required: true,
     },
+
+    // ------------------------------------------------------------
+
     {
       name: "product_files",
       label: "Product file(s)",
@@ -65,6 +93,9 @@ export const Products: CollectionConfig = {
       //   false => each product will have exactly one product file if you want to allow for multiple product files like for ex icon set in multiple different file formats all you have to do is change this to true
       hasMany: false,
     },
+
+    // ------------------------------------------------------------
+
     {
       // need to verify from admin
       name: "approvedForSale",
@@ -95,20 +126,28 @@ export const Products: CollectionConfig = {
         },
       ],
     },
+
+    // ------------------------------------------------------------
+
     {
       // where we can handle the checkout data for payments
       name: "priceId",
       access: {
         // no admin or other user can change this only owner can
+        // nothing should able to change this exect us in backend we call the get payload client were we get cms.Anywhere we do this get payload client we can overwrite these access setting by "overrideAcess: true" but alredy by default we get the payload client this will override the access fields. So no user no admin will be able to chnage this except us through code "min: 5:40"
         create: () => false,
         read: () => false,
         update: () => false,
       },
       type: "text",
+      // hidden is true beacuse we should not see it in admin pannel
       admin: {
         hidden: true,
       },
     },
+
+    // ------------------------------------------------------------
+
     {
       name: "stripeId",
       access: {
@@ -120,6 +159,33 @@ export const Products: CollectionConfig = {
       admin: {
         hidden: true,
       },
+    },
+
+    // ------------------------------------------------------------
+
+    {
+      name: "images",
+      type: "array",
+      label: "Product images",
+      // min image
+      minRows: 1,
+      // max images
+      maxRows: 4,
+      required: true,
+      // spell in admin dashboard
+      labels: {
+        singular: "Image",
+        plural: "Images",
+      },
+      // array of umages and each field is one image
+      fields: [
+        {
+          name: "image",
+          type: "upload",
+          relationTo: "media",
+          required: true,
+        },
+      ],
     },
   ],
 };
