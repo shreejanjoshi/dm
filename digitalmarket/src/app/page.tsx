@@ -1,7 +1,11 @@
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
+import ProductReel from "@/components/ProductReel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowDownToLine, CheckCircle, Leaf } from "lucide-react";
 import Link from "next/link";
+
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 
 const perks = [
   {
@@ -23,6 +27,9 @@ const perks = [
       "We've pledged 1% of sales to the preservation and restoration of the natural environment.",
   },
 ];
+
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 
 export default function Home() {
   return (
@@ -47,7 +54,12 @@ export default function Home() {
             <Button variant="ghost">Our quality promise &rarr;</Button>
           </div>
         </div>
-        {/* TODO: LIST PRODUCTS */}
+
+        <ProductReel
+          query={{ sort: "desc", limit: 4 }}
+          href="/product"
+          title="Brand new"
+        />
       </MaxWidthWrapper>
 
       <section className="border-t border-gray-200 bg-gray-50">
