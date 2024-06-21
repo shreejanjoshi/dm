@@ -147,31 +147,31 @@ const Page = async ({ params }: PageProps) => {
               </p>
             </div>
           </section>
+        </div>
 
-          {/* product images */}
-          <div className="mt-10 lg:col-start-2 lg:row-start-2 lg-mt-0 lg:self-center">
-            <div className="aspect-square rounded-lg">
-              <ImageSlider urls={validUrls} />
-            </div>
+        {/* product images */}
+        <div className="mt-10 lg:col-start-2 lg:row-span-2 lg-mt-0 lg:self-center">
+          <div className="aspect-square rounded-lg">
+            <ImageSlider urls={validUrls} />
           </div>
+        </div>
 
-          {/* add to cart part */}
-          <div className="mt-10 lg:col-start-1 lg:row-start-2 lg:max-w-lg lg:self-start">
-            <div>
-              <div className="mt-10">
-                <AddToCartButton />
-              </div>
-              <div className="mt-6 text-center">
-                <div className="group inline-flex text-sm text-medium">
-                  {/* from luside react */}
-                  <Shield
-                    aria-hidden="true"
-                    className="mr-2 h-5 w-5 flex-shrink-0 text-gray-400"
-                  />
-                  <span className="text-muted-foreground hover:text-gray-700">
-                    30 Day Return Guarantee
-                  </span>
-                </div>
+        {/* add to cart part */}
+        <div className="mt-10 lg:col-start-1 lg:row-start-2 lg:max-w-lg lg:self-start">
+          <div>
+            <div className="mt-10">
+              <AddToCartButton product={product} />
+            </div>
+            <div className="mt-6 text-center">
+              <div className="group inline-flex text-sm text-medium">
+                {/* from luside react */}
+                <Shield
+                  aria-hidden="true"
+                  className="mr-2 h-5 w-5 flex-shrink-0 text-gray-400"
+                />
+                <span className="text-muted-foreground hover:text-gray-700">
+                  30 Day Return Guarantee
+                </span>
               </div>
             </div>
           </div>

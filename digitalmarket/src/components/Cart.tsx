@@ -1,5 +1,8 @@
 "use client";
 
+// ------------------------------------------------------------
+// ------------------------------------------------------------
+
 import { ShoppingCart } from "lucide-react";
 import {
   Sheet,
@@ -14,11 +17,43 @@ import { formatPrice } from "@/lib/utils";
 import Link from "next/link";
 import { buttonVariants } from "./ui/button";
 import Image from "next/image";
+import { useCart } from "@/hooks/use-cart";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import CartItem from "./CartItem";
+import { useEffect, useState } from "react";
+
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 
 const Cart = () => {
-  const itemCount = 0;
+  const { items } = useCart();
+  const itemCount = items.length;
+
+  // ------------------------------------------------------------
+
+  //   error like "text content does not match server-rendered HTML" because we maintain itemor card state in loacl storage which is purly client side and the server doesnt have access to it. What that means is that the html between server and client will be different on the server it will be 0 beacuse there is no local storage and the client when we hydrate this then we wilol have one item  in our card to completely avoid this issue we can this.Keep track of whetather our compentent is already mounted or not we are going to do that instead of used staed in our card that doesnt go in the card item this will happen in cart.tsx compentent... min 8:36:00
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+
+  // onces this componetent mount we get notified of that inside of use effect and can set is mounted state to true
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // ------------------------------------------------------------
+
+  // we can also calculate total amount of product prices in our cart to do that we do this
+  // we use reduces so we can reduces an array to one single value an dthis give us two things the total and also the current products
+  // reduces -> it will go over evry item and we start at zero, that we need to pass default at last
+  const cartTotal = items.reduce(
+    (total, { product }) => total + product.price,
+    0
+  );
+
+  // ------------------------------------------------------------
 
   const fee = 1;
+
+  // ------------------------------------------------------------
 
   return (
     <Sheet>
@@ -30,7 +65,7 @@ const Cart = () => {
 
         {/* amount of item in shopping cart */}
         <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-          0
+          {isMounted ? itemCount : 0}
         </span>
       </SheetTrigger>
 
@@ -44,7 +79,11 @@ const Cart = () => {
           <>
             <div className="flex w-full flex-col pr-6">
               {/* TODO: cart logic */}
-              cart item
+              <ScrollArea>
+                {items.map(({ product }) => (
+                  <CartItem product={product} key={product.id} />
+                ))}
+              </ScrollArea>
             </div>
             <div className="space-y-4 pr-6">
               <Separator />
@@ -59,7 +98,7 @@ const Cart = () => {
                 </div>
                 <div className="flex">
                   <span className="flex-1">Total</span>
-                  <span>{formatPrice(fee)}</span>
+                  <span>{formatPrice(cartTotal + fee)}</span>
                 </div>
               </div>
 
@@ -105,5 +144,8 @@ const Cart = () => {
     </Sheet>
   );
 };
+
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 
 export default Cart;
