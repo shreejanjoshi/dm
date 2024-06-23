@@ -19,7 +19,7 @@ export const appRouter = router({
   //   return "hello";
   // }),
   auth: authRouter,
-  // payment: paymentRouter
+  payment: paymentRouter,
 
   // get products
   getInfiniteProducts: publicProcedure
