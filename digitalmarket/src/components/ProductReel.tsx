@@ -78,7 +78,12 @@ const ProductReel = (props: ProductReelProps) => {
         <div className="mt-6 flex items-center w-full">
           <div className="w-full grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-10 lg:gap-x-8">
             {map.map((products, i) => (
-              <ProductListing product={products} index={i} />
+              // so we are mapping over this is not necessaryely the product but it could also be the empty array and if it is in that case all the keys right here are goind to be null so its going to be the 
+              <ProductListing
+                key={`product-${i}`}
+                product={products}
+                index={i}
+              />
             ))}
           </div>
         </div>

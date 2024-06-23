@@ -32,6 +32,7 @@ const Cart = () => {
   // ------------------------------------------------------------
 
   //   error like "text content does not match server-rendered HTML" because we maintain itemor card state in loacl storage which is purly client side and the server doesnt have access to it. What that means is that the html between server and client will be different on the server it will be 0 beacuse there is no local storage and the client when we hydrate this then we wilol have one item  in our card to completely avoid this issue we can this.Keep track of whetather our compentent is already mounted or not we are going to do that instead of used staed in our card that doesnt go in the card item this will happen in cart.tsx compentent... min 8:36:00
+  // i think isMounted is not necessery now
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
   // onces this componetent mount we get notified of that inside of use effect and can set is mounted state to true

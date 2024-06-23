@@ -6,6 +6,7 @@ import { publicProcedure, router } from "./trpc";
 import { QueryValidator } from "../lib/validators/query-validator";
 // .. is relative imports
 import { getPayloadClient } from "../get-payload";
+// import { paymentRouter } from "./payment-router";
 
 // ------------------------------------------------------------
 // ------------------------------------------------------------
@@ -18,6 +19,7 @@ export const appRouter = router({
   //   return "hello";
   // }),
   auth: authRouter,
+  // payment: paymentRouter
 
   // get products
   getInfiniteProducts: publicProcedure
