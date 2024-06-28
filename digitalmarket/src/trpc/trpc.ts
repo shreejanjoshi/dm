@@ -5,9 +5,17 @@ import { TRPCError, initTRPC } from "@trpc/server";
 import { User } from "payload/dist/auth";
 import { PayloadRequest } from "payload/types";
 
+// ------------------------------------------------------------
+// ------------------------------------------------------------
+
 // ExpressContext comes from server.ts
 const t = initTRPC.context<ExpressContext>().create();
+
+// ------------------------------------------------------------
+
 const middleware = t.middleware;
+
+// ------------------------------------------------------------
 
 // payment ones
 const isAuth = middleware(async ({ ctx, next }) => {
@@ -31,7 +39,11 @@ const isAuth = middleware(async ({ ctx, next }) => {
   });
 });
 
+// ------------------------------------------------------------
+// ------------------------------------------------------------
+
 export const router = t.router;
 // any one call this api end point it is public
 export const publicProcedure = t.procedure;
+// private procedure are the user which is logged in
 export const privateProcedure = t.procedure.use(isAuth);

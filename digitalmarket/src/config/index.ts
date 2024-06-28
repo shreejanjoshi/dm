@@ -21,6 +21,9 @@ export const PRODUCT_CATEGORIES = [
       },
     ],
   },
+
+  // ------------------------------------------------------------
+
   {
     label: "Icons",
     value: "icons" as const,

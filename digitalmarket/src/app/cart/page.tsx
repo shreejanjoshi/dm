@@ -4,19 +4,42 @@ import { PRODUCT_CATEGORIES } from "@/config";
 // ------------------------------------------------------------
 // ------------------------------------------------------------
 
+import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { cn, formatPrice } from "@/lib/utils";
+import { trpc } from "@/trpc/client";
+import { Check, Loader2, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Check, Loader2, X } from "lucide-react";
 
 // ------------------------------------------------------------
 // ------------------------------------------------------------
 
 const Page = () => {
   const { items, removeItem } = useCart();
+
+  // ------------------------------------------------------------
+
+  // logic when ever we clicked the checkout button
+  const router = useRouter();
+
+  // createCheckoutSession is just a custom name
+  const { mutate: createCheckoutSession, isLoading } =
+    trpc.payment.createSession.useMutation({
+      // onsucess we want to push the url
+      onSuccess: ({ url }) => {
+        // and if we have url then we push that into the browser. The way we do that is by router
+        // this will gonna forward us to the stripe hosted checkout page and that's all we need to worry about
+        if (url) router.push(url);
+      },
+    });
+
+  // well have all the products that are in our card right so the only things we need to do is to access all the ids is to map over evry product and simply return id
+  const productIds = items.map(({ product }) => product.id);
+
+  // ------------------------------------------------------------
 
   // one nice side effect of isMounted is that error from before with the different class name for server and client is also gone because on the server conditional class name will not be applied because isMounted state is true therefore the rest doesnt even evalute so this will be false the class name wont be applied and it will only be applied on the client side exactli where we want it and expect it
   const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -25,12 +48,18 @@ const Page = () => {
     setIsMounted(true);
   }, []);
 
+  // ------------------------------------------------------------
+
   const cartTotal = items.reduce(
     (total, { product }) => total + product.price,
     0
   );
 
+  // ------------------------------------------------------------
+
   const fee = 1;
+
+  // ------------------------------------------------------------
 
   return (
     <div className="bg-white">
@@ -201,14 +230,15 @@ const Page = () => {
             {/* checkout button */}
             <div className="mt-6">
               <Button
-                // disabled={items.length === 0 || isLoading}
-                // onClick={() => createCheckoutSession({ productIds })}
+                disabled={items.length === 0 || isLoading}
+                // now have an arry of all the product ids that we have in our cart that we can then use whenever we want to check out pto pass it to the api to create that checkout session for us and thats the logic done
+                onClick={() => createCheckoutSession({ productIds })}
                 className="w-full"
                 size="lg"
               >
-                {/* {isLoading ? (
+                {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
-                ) : null} */}
+                ) : null}
                 Checkout
               </Button>
             </div>
