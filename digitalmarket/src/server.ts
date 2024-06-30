@@ -11,6 +11,8 @@ import { nextApp, nextHandler } from "./next-utils";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { appRouter } from "./trpc";
 import { inferAsyncReturnType } from "@trpc/server";
+import bodyParser from "body-parser";
+import { IncomingMessage } from "http";
 
 const app = express();
 // production is env because the server will give us the port and in development it is 3000
@@ -28,7 +30,35 @@ const createContext = ({
 // we can use this ExpressContext in trpc initialization for under src -> trpc -> trpc.ts
 export type ExpressContext = inferAsyncReturnType<typeof createContext>;
 
+// we gonna slighty modify this req in order for us to make it readable and check if the msg actually comes from stripe beacus it will have certain signature that we need to validate on or end to make sure it is actually stripe and not just anyone i an trying to call or webhook
+// 10:40:00
+export type WebhookRequest = IncomingMessage & {
+  rawBody: Buffer;
+};
+
 const start = async () => {
+  // we need to know when we recevied the money
+
+  // bodyparser is a seperate package we can install that goes very well with teh express and taht will allow us to receive the proper notific from the stripe
+  // the reason we are doing this is to modified the msg that stripe send us
+  const webhookMiddleware = bodyParser.json({
+    verify: (req: WebhookRequest, _, buffer) => {
+      req.rawBody = buffer;
+    },
+  });
+
+  // no whenever somebody make post req to our app app.post to /api then we gonna use webhookmiddleware
+  app.post("/api/webhooks/stripe", webhookMiddleware, stripeWebhookHandler);
+
+  const payload = await getPayloadClient({
+    initOptions: {
+      express: app,
+      onInit: async (cms) => {
+        cms.logger.info(`Admin URL: ${cms.getAdminURL()}`);
+      },
+    },
+  });
+
   // admin data
   const payload = await getPayloadClient({
     initOptions: {
