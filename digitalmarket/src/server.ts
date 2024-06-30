@@ -13,10 +13,16 @@ import { appRouter } from "./trpc";
 import { inferAsyncReturnType } from "@trpc/server";
 import bodyParser from "body-parser";
 import { IncomingMessage } from "http";
+import { stripeWebhookHandler } from "./webhooks";
+
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 
 const app = express();
 // production is env because the server will give us the port and in development it is 3000
 const PORT = Number(process.env.PORT) || 3000;
+
+// ------------------------------------------------------------
 
 const createContext = ({
   req,
@@ -26,15 +32,21 @@ const createContext = ({
   res,
 });
 
+// ------------------------------------------------------------
+
 // typescript not recornazing req, res that come from cretecontext to authrouter.ts . so we use this
 // we can use this ExpressContext in trpc initialization for under src -> trpc -> trpc.ts
 export type ExpressContext = inferAsyncReturnType<typeof createContext>;
+
+// ------------------------------------------------------------
 
 // we gonna slighty modify this req in order for us to make it readable and check if the msg actually comes from stripe beacus it will have certain signature that we need to validate on or end to make sure it is actually stripe and not just anyone i an trying to call or webhook
 // 10:40:00
 export type WebhookRequest = IncomingMessage & {
   rawBody: Buffer;
 };
+
+// ------------------------------------------------------------
 
 const start = async () => {
   // we need to know when we recevied the money
@@ -47,17 +59,12 @@ const start = async () => {
     },
   });
 
+  // ------------------------------------------------------------
+
   // no whenever somebody make post req to our app app.post to /api then we gonna use webhookmiddleware
   app.post("/api/webhooks/stripe", webhookMiddleware, stripeWebhookHandler);
 
-  const payload = await getPayloadClient({
-    initOptions: {
-      express: app,
-      onInit: async (cms) => {
-        cms.logger.info(`Admin URL: ${cms.getAdminURL()}`);
-      },
-    },
-  });
+  // ------------------------------------------------------------
 
   // admin data
   const payload = await getPayloadClient({
@@ -69,6 +76,8 @@ const start = async () => {
     },
   });
 
+  // ------------------------------------------------------------
+
   // middelware -> when we get req in server we foward it to trcp in nextjs
   app.use(
     "/api/trpc",
@@ -79,6 +88,8 @@ const start = async () => {
       createContext,
     })
   );
+
+  // ------------------------------------------------------------
 
   // to host send it to next-util.ts
   app.use((req, res) => nextHandler(req, res));
@@ -93,6 +104,8 @@ const start = async () => {
     });
   });
 };
+
+// ------------------------------------------------------------
 
 start();
 

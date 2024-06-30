@@ -7,7 +7,12 @@ import { Product } from "./payload-types";
 import { Resend } from "resend";
 import { ReceiptEmailHtml } from "./components/emails/ReceiptEmail";
 
+// ------------------------------------------------------------
+// ------------------------------------------------------------
+
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// ------------------------------------------------------------
 
 export const stripeWebhookHandler = async (
   req: express.Request,
@@ -43,6 +48,8 @@ export const stripeWebhookHandler = async (
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
+
+  // ------------------------------------------------------------
 
   //   step 2 => update the is paid property to true
   if (!session?.metadata?.userId || !session?.metadata?.orderId) {
@@ -90,6 +97,8 @@ export const stripeWebhookHandler = async (
         },
       },
     });
+
+    // ------------------------------------------------------------
 
     // step 3 => send receipt
     try {
