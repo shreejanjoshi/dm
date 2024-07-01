@@ -6,12 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { buttonVariants } from "./ui/button";
 
+import * as React from "react";
+
 interface VerifyEmailProps {
   token: string;
 }
 
 const VerifyEmail = ({ token }: VerifyEmailProps) => {
-  // happen in backend: look in auth-router.ts
   const { data, isLoading, isError } = trpc.auth.verifyEmail.useQuery({
     token,
   });
@@ -19,7 +20,6 @@ const VerifyEmail = ({ token }: VerifyEmailProps) => {
   if (isError) {
     return (
       <div className="flex flex-col items-center gap-2">
-        {/* xcircle from lucide react */}
         <XCircle className="h-8 w-8 text-red-600" />
         <h3 className="font-semibold text-xl">There was a problem</h3>
         <p className="text-muted-foreground text-sm">

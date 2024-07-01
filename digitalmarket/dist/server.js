@@ -74,6 +74,8 @@ var trpcExpress = __importStar(require("@trpc/server/adapters/express"));
 var trpc_1 = require("./trpc");
 var body_parser_1 = __importDefault(require("body-parser"));
 var webhooks_1 = require("./webhooks");
+var build_1 = __importDefault(require("next/dist/build"));
+var path_1 = __importDefault(require("path"));
 // ------------------------------------------------------------
 // ------------------------------------------------------------
 var app = (0, express_1.default)();
@@ -114,6 +116,26 @@ var start = function () { return __awaiter(void 0, void 0, void 0, function () {
                     })];
             case 1:
                 payload = _a.sent();
+                // ------------------------------------------------------------
+                // add build script in the server to build this production if the process .env
+                if (process.env.NEXT_BUILD) {
+                    app.listen(PORT, function () { return __awaiter(void 0, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    payload.logger.info("Next.js is building for production");
+                                    // @ts-expect-error
+                                    return [4 /*yield*/, (0, build_1.default)(path_1.default.join(__dirname, "../"))];
+                                case 1:
+                                    // @ts-expect-error
+                                    _a.sent();
+                                    process.exit();
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                    return [2 /*return*/];
+                }
                 // ------------------------------------------------------------
                 // middelware -> when we get req in server we foward it to trcp in nextjs
                 app.use("/api/trpc", trpcExpress.createExpressMiddleware({
