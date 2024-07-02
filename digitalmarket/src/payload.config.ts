@@ -12,7 +12,7 @@ import path from "path";
 import { buildConfig } from "payload/config";
 import { Users } from "./collections/Users";
 import dotenv from "dotenv";
-import { Products } from "./collections/Products/Products";
+import { Products } from "./collections/Product/Products";
 import { ProductFiles } from "./collections/ProductFile";
 import { Media } from "./collections/Media";
 import { Orders } from "./collections/Orders";
