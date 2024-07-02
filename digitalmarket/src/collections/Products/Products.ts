@@ -18,67 +18,87 @@ const addUser: BeforeChangeHook<Product> = async ({ req, data }) => {
 
 // ------------------------------------------------------------
 
-// const syncUser: AfterChangeHook<Product> = async ({ req, doc }) => {
-//   const fullUser = await req.payload.findByID({
-//     collection: "users",
-//     id: req.user.id,
-//   });
+// if product is created how do we know which user it belongs to
+// we can tell typescript this is going to be of type after change hook so after a product is created
+// after this in the user object we now have all the ids of product this user have
+const syncUser: AfterChangeHook<Product> = async ({ req, doc }) => {
+  // we need access to full user so entire user obj
+  const fullUser = await req.payload.findByID({
+    collection: "users",
+    id: req.user.id,
+  });
 
-//   if (fullUser && typeof fullUser === "object") {
-//     const { products } = fullUser;
+  // this means we have actual user obj
+  if (fullUser && typeof fullUser === "object") {
+    // we did add the product field to the user but we didnt genertate outr types from it so add -> yarn generate:types
+    const { products } = fullUser;
 
-//     const allIDs = [
-//       ...(products?.map((product) =>
-//         typeof product === "object" ? product.id : product
-//       ) || []),
-//     ];
+    // 11:28:00
+    // all these ids will actually contains the product we have just created beacuse this is after change hook the product has been already created
+    const allIDs = [
+      ...(products?.map((product) =>
+        typeof product === "object" ? product.id : product
+      ) || []),
+    ];
 
-//     const createdProductIDs = allIDs.filter(
-//       (id, index) => allIDs.indexOf(id) === index
-//     );
+    // now to find the one that we just created
+    const createdProductIDs = allIDs.filter(
+      (id, index) => allIDs.indexOf(id) === index
+    );
 
-//     const dataToUpdate = [...createdProductIDs, doc.id];
+    // so what we actually want to change. This is just all the craeted product id and currect product that has been craeted
+    const dataToUpdate = [...createdProductIDs, doc.id];
 
-//     await req.payload.update({
-//       collection: "users",
-//       id: fullUser.id,
-//       data: {
-//         products: dataToUpdate,
-//       },
-//     });
-//   }
-// };
+    // we need to sync that with our database
+    await req.payload.update({
+      collection: "users",
+      id: fullUser.id,
+      data: {
+        products: dataToUpdate,
+      },
+    });
+  }
+};
 
 // ------------------------------------------------------------
 
-// const isAdminOrHasAccess =
-//   (): Access =>
-//   ({ req: { user: _user } }) => {
-//     const user = _user as User | undefined;
+const isAdminOrHasAccess =
+  (): Access =>
+  ({ req: { user: _user } }) => {
+    // _user beacase so that we can say const user is equal to _user which is essentially the same thing but with tghe purpose of that we can now cast this type as our user type or undifiend if user is not logged in
+    const user = _user as User | undefined;
 
-//     if (!user) return false;
-//     if (user.role === "admin") return true;
+    // if user is not logged in we should not be able to read any product
+    if (!user) return false;
 
-//     const userProductIDs = (user.products || []).reduce<Array<string>>(
-//       (acc, product) => {
-//         if (!product) return acc;
-//         if (typeof product === "string") {
-//           acc.push(product);
-//         } else {
-//           acc.push(product.id);
-//         }
+    // if admin we should be able to read all product
+    if (user.role === "admin") return true;
 
-//         return acc;
-//       },
-//       []
-//     );
+    // if user you should only be able to read your own products
+    const userProductIDs = (user.products || []).reduce<Array<string>>(
+      (acc, product) => {
+        //  if no product
+        if (!product) return acc;
 
-//     return {
-//       id: {
-//         in: userProductIDs,
-//       },
-//     };
-//   };
+        // product id
+        if (typeof product === "string") {
+          acc.push(product);
+        } else {
+          // if not string which mean this is entire obj and not just the id
+          acc.push(product.id);
+        }
+
+        return acc;
+      },
+      []
+    );
+
+    return {
+      id: {
+        in: userProductIDs,
+      },
+    };
+  };
 
 // ------------------------------------------------------------
 // ------------------------------------------------------------
@@ -97,7 +117,14 @@ export const Products: CollectionConfig = {
   // ------------------------------------------------------------
 
   // who can access which parts of which products, can anyone download product? no right
-  access: {},
+
+  access: {
+    // who should be able to raed product and ans is you should be ablue to read your own product and admin should be able to read products
+    // yo can only read, update, delete your own product
+    read: isAdminOrHasAccess(),
+    update: isAdminOrHasAccess(),
+    delete: isAdminOrHasAccess(),
+  },
 
   // ------------------------------------------------------------
 
@@ -106,8 +133,11 @@ export const Products: CollectionConfig = {
   // for the hooks we get notiied we can execute our own code when a product is created for ex beforechange
   // 9:40:00
   hooks: {
+    // after change hook is arry because we could add miltiple and this is going to contyain our sync user hook we have to find right above
+    afterChange: [syncUser],
     // 2 things will happen when the product is inserted into our database 1st we need to add user we have the user field but we have never actually setting it. so we will create a custom function addUser at top
     beforeChange: [
+      // we are adding user to the product
       addUser,
       async (args) => {
         // this means we are creating new product and also new product in strip as well

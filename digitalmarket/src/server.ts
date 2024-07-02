@@ -98,6 +98,28 @@ const start = async () => {
 
   // ------------------------------------------------------------
 
+  // so you have to be logged in in order to be able to go to card page
+  const cartRouter = express.Router();
+
+  // this gonna attached the user object to our express request
+  cartRouter.use(payload.authenticate);
+
+  cartRouter.get("/", (req, res) => {
+    // casting
+    const request = req as PayloadRequest;
+
+    if (!request.user) return res.redirect("/sign-in?origin=cart");
+
+    const parsedUrl = parse(req.url, true);
+    const { query } = parsedUrl;
+
+    return nextApp.render(req, res, "/cart", query);
+  });
+
+  app.use("/cart", cartRouter);
+
+  // ------------------------------------------------------------
+
   // middelware -> when we get req in server we foward it to trcp in nextjs
   app.use(
     "/api/trpc",

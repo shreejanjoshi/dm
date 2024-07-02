@@ -1,4 +1,19 @@
-import { CollectionConfig } from "payload/types";
+import { PrimaryActionEmailHtml } from "../components/emails/PrimaryActionEmail";
+import { Access, CollectionConfig } from "payload/types";
+
+// ------------------------------------------------------------
+// ------------------------------------------------------------
+
+const adminsAndUser: Access = ({ req: { user } }) => {
+  if (user.role === "admin") return true;
+
+  // u can access the user that matches the currently logged in user id which is yourself
+  return {
+    id: {
+      equals: user.id,
+    },
+  };
+};
 
 // ------------------------------------------------------------
 // ------------------------------------------------------------
@@ -12,7 +27,12 @@ export const Users: CollectionConfig = {
   auth: {
     verify: {
       generateEmailHTML: ({ token }) => {
-        return `<a href="${process.env.NEXT_PUBLIC_SERVER_URL}/verify-email?token=${token}">Verify account</a>`;
+        // for email
+        return PrimaryActionEmailHtml({
+          actionLabel: "verify your account",
+          buttonText: "Verify Account",
+          href: `${process.env.NEXT_PUBLIC_SERVER_URL}/verify-email?token=${token}`,
+        });
       },
     },
   },
@@ -21,14 +41,47 @@ export const Users: CollectionConfig = {
 
   // only right people can see right data
   access: {
-    // true any one can create or read
-    read: () => true,
+    // who should be able to read a user and the answer is admin and the user itself
+    read: adminsAndUser,
+    // true beacuse anyone is allowed to sign up to our services
     create: () => true,
+    update: ({ req }) => req.user.role === "admin",
+    delete: ({ req }) => req.user.role === "admin",
+  },
+
+  // ------------------------------------------------------------
+
+  // admin visibility setting
+  admin: {
+    // hidden from everyone who is not admoin
+    hidden: ({ user }) => user.role !== "admin",
+    // that is just going to change how this is displayed in the admin pannel but just a tiny details
+    defaultColumns: ["id"],
   },
 
   // ------------------------------------------------------------
 
   fields: [
+    {
+      name: "products",
+      label: "Products",
+      admin: {
+        condition: () => false,
+      },
+      type: "relationship",
+      relationTo: "products",
+      hasMany: true,
+    },
+    {
+      name: "product_files",
+      label: "Product files",
+      admin: {
+        condition: () => false,
+      },
+      type: "relationship",
+      relationTo: "product_files",
+      hasMany: true,
+    },
     {
       name: "role",
       defaultValue: "user",
