@@ -1,22 +1,21 @@
 export const PRODUCT_CATEGORIES = [
   {
-    label: "UI kits",
-    // ty knows its literally a string that is ui_kits
+    label: "UI Kits",
     value: "ui_kits" as const,
     featured: [
       {
         name: "Editor picks",
-        href: "#",
+        href: `/products?category=ui_kits`,
         imageSrc: "/nav/ui-kits/mixed.jpg",
       },
       {
         name: "New Arrivals",
-        href: "#",
+        href: "/products?category=ui_kits&sort=desc",
         imageSrc: "/nav/ui-kits/blue.jpg",
       },
       {
         name: "Bestsellers",
-        href: "#",
+        href: "/products?category=ui_kits",
         imageSrc: "/nav/ui-kits/purple.jpg",
       },
     ],
@@ -30,17 +29,17 @@ export const PRODUCT_CATEGORIES = [
     featured: [
       {
         name: "Favorite Icon Picks",
-        href: "#",
+        href: `/products?category=icons`,
         imageSrc: "/nav/icons/picks.jpg",
       },
       {
         name: "New Arrivals",
-        href: "#",
+        href: "/products?category=icons&sort=desc",
         imageSrc: "/nav/icons/new.jpg",
       },
       {
         name: "Bestselling Icons",
-        href: "#",
+        href: "/products?category=icons",
         imageSrc: "/nav/icons/bestsellers.jpg",
       },
     ],

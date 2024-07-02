@@ -8,13 +8,6 @@ import { useOnClickOutside } from "@/hooks/use-on-click-outside";
 const NavItems = () => {
   const [activeIndex, setActiveIndex] = useState<null | number>(null);
 
-  const isAnyOpen = activeIndex !== null;
-
-  // close nav if click anywhere: but this one tell if you click outside the element
-  const navRef = useRef<HTMLDivElement | null>(null);
-  
-  useOnClickOutside(navRef, () => setActiveIndex(null));
-
   // esc go back
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -30,23 +23,33 @@ const NavItems = () => {
     };
   }, []);
 
+  const isAnyOpen = activeIndex !== null;
+
+  // close nav if click anywhere: but this one tell if you click outside the element
+  const navRef = useRef<HTMLDivElement | null>(null);
+
+  useOnClickOutside(navRef, () => setActiveIndex(null));
+
   return (
     <div className="flex gap-4 h-full" ref={navRef}>
       {PRODUCT_CATEGORIES.map((category, i) => {
         // keep track of which nav is currently open and which one is not
         const handleOpen = () => {
-          if (activeIndex == i) {
+          if (activeIndex === i) {
             setActiveIndex(null);
           } else {
             setActiveIndex(i);
           }
         };
 
+        const close = () => setActiveIndex(null);
+
         const isOpen = i === activeIndex;
 
         return (
           <NavItem
             category={category}
+            close={close}
             handleOpen={handleOpen}
             isOpen={isOpen}
             key={category.value}

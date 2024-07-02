@@ -46,6 +46,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Products = void 0;
 var config_1 = require("../../config");
@@ -61,56 +70,77 @@ var addUser = function (_a) { return __awaiter(void 0, [_a], void 0, function (_
     });
 }); };
 // ------------------------------------------------------------
-// const syncUser: AfterChangeHook<Product> = async ({ req, doc }) => {
-//   const fullUser = await req.payload.findByID({
-//     collection: "users",
-//     id: req.user.id,
-//   });
-//   if (fullUser && typeof fullUser === "object") {
-//     const { products } = fullUser;
-//     const allIDs = [
-//       ...(products?.map((product) =>
-//         typeof product === "object" ? product.id : product
-//       ) || []),
-//     ];
-//     const createdProductIDs = allIDs.filter(
-//       (id, index) => allIDs.indexOf(id) === index
-//     );
-//     const dataToUpdate = [...createdProductIDs, doc.id];
-//     await req.payload.update({
-//       collection: "users",
-//       id: fullUser.id,
-//       data: {
-//         products: dataToUpdate,
-//       },
-//     });
-//   }
-// };
+// if product is created how do we know which user it belongs to
+// we can tell typescript this is going to be of type after change hook so after a product is created
+// after this in the user object we now have all the ids of product this user have
+var syncUser = function (_a) { return __awaiter(void 0, [_a], void 0, function (_b) {
+    var fullUser, products, allIDs_1, createdProductIDs, dataToUpdate;
+    var req = _b.req, doc = _b.doc;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0: return [4 /*yield*/, req.payload.findByID({
+                    collection: "users",
+                    id: req.user.id,
+                })];
+            case 1:
+                fullUser = _c.sent();
+                if (!(fullUser && typeof fullUser === "object")) return [3 /*break*/, 3];
+                products = fullUser.products;
+                allIDs_1 = __spreadArray([], ((products === null || products === void 0 ? void 0 : products.map(function (product) {
+                    return typeof product === "object" ? product.id : product;
+                })) || []), true);
+                createdProductIDs = allIDs_1.filter(function (id, index) { return allIDs_1.indexOf(id) === index; });
+                dataToUpdate = __spreadArray(__spreadArray([], createdProductIDs, true), [doc.id], false);
+                // we need to sync that with our database
+                return [4 /*yield*/, req.payload.update({
+                        collection: "users",
+                        id: fullUser.id,
+                        data: {
+                            products: dataToUpdate,
+                        },
+                    })];
+            case 2:
+                // we need to sync that with our database
+                _c.sent();
+                _c.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
 // ------------------------------------------------------------
-// const isAdminOrHasAccess =
-//   (): Access =>
-//   ({ req: { user: _user } }) => {
-//     const user = _user as User | undefined;
-//     if (!user) return false;
-//     if (user.role === "admin") return true;
-//     const userProductIDs = (user.products || []).reduce<Array<string>>(
-//       (acc, product) => {
-//         if (!product) return acc;
-//         if (typeof product === "string") {
-//           acc.push(product);
-//         } else {
-//           acc.push(product.id);
-//         }
-//         return acc;
-//       },
-//       []
-//     );
-//     return {
-//       id: {
-//         in: userProductIDs,
-//       },
-//     };
-//   };
+var isAdminOrHasAccess = function () {
+    return function (_a) {
+        var _user = _a.req.user;
+        // _user beacase so that we can say const user is equal to _user which is essentially the same thing but with tghe purpose of that we can now cast this type as our user type or undifiend if user is not logged in
+        var user = _user;
+        // if user is not logged in we should not be able to read any product
+        if (!user)
+            return false;
+        // if admin we should be able to read all product
+        if (user.role === "admin")
+            return true;
+        // if user you should only be able to read your own products
+        var userProductIDs = (user.products || []).reduce(function (acc, product) {
+            //  if no product
+            if (!product)
+                return acc;
+            // product id
+            if (typeof product === "string") {
+                acc.push(product);
+            }
+            else {
+                // if not string which mean this is entire obj and not just the id
+                acc.push(product.id);
+            }
+            return acc;
+        }, []);
+        return {
+            id: {
+                in: userProductIDs,
+            },
+        };
+    };
+};
 // ------------------------------------------------------------
 // ------------------------------------------------------------
 exports.Products = {
@@ -123,15 +153,24 @@ exports.Products = {
     },
     // ------------------------------------------------------------
     // who can access which parts of which products, can anyone download product? no right
-    access: {},
+    access: {
+        // who should be able to raed product and ans is you should be ablue to read your own product and admin should be able to read products
+        // yo can only read, update, delete your own product
+        read: isAdminOrHasAccess(),
+        update: isAdminOrHasAccess(),
+        delete: isAdminOrHasAccess(),
+    },
     // ------------------------------------------------------------
     // our product have a price and the strip id but we are not creating those anywhere so when we actually create that and the anwswer is when a product is created.Right away we can register it with stripe though the api and get back the stripe id assigned to this product that we can then use later on in the checkout page
     // so payload or cms provide very handy utility for that and taht is hook
     // for the hooks we get notiied we can execute our own code when a product is created for ex beforechange
     // 9:40:00
     hooks: {
+        // after change hook is arry because we could add miltiple and this is going to contyain our sync user hook we have to find right above
+        afterChange: [syncUser],
         // 2 things will happen when the product is inserted into our database 1st we need to add user we have the user field but we have never actually setting it. so we will create a custom function addUser at top
         beforeChange: [
+            // we are adding user to the product
             addUser,
             function (args) { return __awaiter(void 0, void 0, void 0, function () {
                 var data, createdProduct, updated, data, updatedProduct, updated;
