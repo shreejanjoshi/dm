@@ -2,6 +2,9 @@
 
 This project is a digital marketplace built with Next.js 14 where users can sell and buy digital products such as images, PDFs, eBooks, and illustrations. The platform includes a user authentication system and an admin panel for approving products before they are listed for sale.
 
+DM: https://dm-production-bded.up.railway.app
+
+
 ## Features
 
 - User authentication and authorization
